@@ -1,10 +1,25 @@
-// require
+// first method to import env
+// require('dotenv').config({ path : "./env"})
 
+//second method to import env
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
 
-connectDB();
+connectDB()
+.then(()=>
+{
+    app.listen(process.env.PORT, () =>{
+        console.log(`Server is running on port ${process.env.PORT || 8000}`);
+    })
+})
+.catch((error)=>
+{
+    console.log("ERROR :", error);
+    throw error;
+});
 
+
+// connect env file as soon as possible
 dotenv.config({
     path: "./env",
 });
