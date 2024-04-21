@@ -11,5 +11,8 @@ npm i -D nodemon  // dev dependencies
 ## mongoose
 ## prettier
 ## express
+## CORS
+## cookie-parser
+## middlewares
 
 ## mongodb connection
