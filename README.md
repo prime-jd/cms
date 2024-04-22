@@ -14,5 +14,8 @@ npm i -D nodemon  // dev dependencies
 ## CORS
 ## cookie-parser
 ## middlewares
+## bcrypt 
+## JWT
+## mongoose-aggregate-paginate-v2
 
 ## mongodb connection
