@@ -17,5 +17,7 @@ npm i -D nodemon  // dev dependencies
 ## bcrypt 
 ## JWT
 ## mongoose-aggregate-paginate-v2
+## multer
+## cloudinary
 
 ## mongodb connection
