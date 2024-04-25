@@ -14,4 +14,11 @@ app.use(express.urlencoded({extended : true, limit : "16kb"}));     // if data r
 app.use(express.static("public"));             // if  i want to save any file folder or image in public folder  
 app.use(cookieParser());
 
+
+// import router
+
+import useRouter from './routes/user.router.js';
+
+app.use("/api/v1/user", useRouter);
+
 export {app}
