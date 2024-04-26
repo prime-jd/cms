@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { JsonWebTokenError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 const userSchema = mongoose.Schema({
@@ -41,17 +41,19 @@ const userSchema = mongoose.Schema({
     },
     avatar : {
         type : String,  // cloudnery url
-        require : true
+         require : true
     },
     coverImage : {
         type : String // cloudnery url
+        
     }
 
 }, {timestamps : true})
 
 userSchema.pre("save", async function(next){
     if(!this.isModified("password")) return next();
-        this.password = bcrypt.hash(this.password, 10);
+        this.password = await bcrypt.hash(this.password, 10)
+        next()
     })
         
 userSchema.methods.isPasswordCorrect = async function(password){
