@@ -24,4 +24,4 @@ npm i -D nodemon  // dev dependencies
 ## router
 ## postman
 
-[Model link]  https://app.eraser.io/workspace/YtPqZ1VogxGy1jzIDkzj
+[Model link] [ https://app.eraser.io/workspace/YtPqZ1VogxGy1jzIDkzj](https://app.eraser.io/workspace/7p6NfgCJ0gZ50QIdBcO7)
