@@ -1,10 +1,34 @@
 
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { User } from "../models/user.model.js";
+import { User} from "../models/user.model.js";
 import {ApiError} from "../utils/apiError.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+
+const generateAccessAndRefreshToken = async(userId)=>{
+    try {
+           const user = await User.findById(userId)
+           const accessToken = user.generateAccessToken()
+           
+           const refreshToken = user.generateRefreshToken()
+           
+           user.refreshToken = refreshToken
+           await user.save({validateBeforeSave : false})
+           
+           return {accessToken, refreshToken}
+
+    } catch (error) {
+       
+        throw new ApiError(400, "Error generating tokens")
+    }
+}
+
+
+
+
+
+//SIGN UP
 
 const registerUser = asyncHandler(async (req, res) => {
    // res.status(200).json({ message: "Register User" });
@@ -67,4 +91,77 @@ const registerUser = asyncHandler(async (req, res) => {
     return res.status(201).json(new ApiResponse(200, "User created successfully", createdUser));
 });
 
-export { registerUser };
+//LOGIN USER
+
+const loginUser = asyncHandler(async(req,res)=>{
+   //req body
+   //username or email
+   //find the user
+   //password check
+   //access and refresh token
+   //send cookie
+
+   const {email,password,username} = req.body
+//   console.log(req.body)
+//    console.log({email})
+   
+   if(!email && !username){      //for or (!(email || password))
+    throw new ApiError(400, "username or password is required")
+   }
+
+   const findUser = await User.findOne({
+      $or : [{email} || {username}]
+   })
+//    console.log(findUser)
+
+   if(!findUser){
+    throw new ApiError(404, "user does not exist")
+   }
+
+   const isPasswordValid = await findUser.isPasswordCorrect(password)                                    // we do not use "User" because it is a mongoose object so to use methods defined in user model we have to use "findUser" which is a instance taken by User model
+   if(!isPasswordValid){
+    throw new ApiError(404, "invalid user credentials")
+   }
+
+   const {accessToken, refreshToken}=await generateAccessAndRefreshToken(findUser._id)
+  //  console.log(accessToken)
+
+   const loggedInUser = await User.findById(findUser._id).select("-password -refreshToken") 
+
+   const cookieOptions = {
+    httpOnly : true,
+    secure : true
+   }
+
+   return res.status(200).cookie("accessToken", accessToken, cookieOptions)
+   .cookie("refreshToken", refreshToken, cookieOptions)
+   .json(new ApiResponse(200, 
+    {
+        user :  loggedInUser,
+        accessToken,                
+        refreshToken
+    },
+    "User logged in successfully"));
+
+    
+});
+    //LOGOUT
+
+    const logoutUser = asyncHandler(async(req, res)=>{
+      await  User.findByIdAndUpdate(req.user._id, {
+         $set :{refreshToken : ""
+       }},
+       {
+        new : true
+       }) 
+       const cookieOptions = {
+        httpOnly : true,
+        secure : true
+       }
+       return res.status(200).clearCookie("accessToken").clearCookie("refreshToken").json(new ApiResponse(200, "User logged out successfully"));
+    });
+
+
+export { registerUser, 
+    loginUser ,
+      logoutUser};
