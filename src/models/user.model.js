@@ -12,7 +12,7 @@ const userSchema = mongoose.Schema({
         required : [true, "password required"]
         
     },
-    tokens :{
+    refreshTokens :{
         type : String
 
     },
@@ -60,8 +60,8 @@ userSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password, this.password);
     
 }
-userSchema.methods.generateAccesToken= function(){
-   jwt.sign(
+userSchema.methods.generateAccessToken= function(){
+   return jwt.sign(
     {
         id : this._id,
         username : this.username,
@@ -73,9 +73,11 @@ userSchema.methods.generateAccesToken= function(){
      process.env.ACCESS_TOKEN_SECRET, 
      {expiresIn : process.env.ACCESS_TOKEN_EXPIRY}) 
 }
+
 userSchema.methods.generateRefreshToken= function(){
-    jwt.sign({id : this._id},
+    return jwt.sign({id : this._id},
          process.env.REFRESH_TOKEN_SECRET,
           {expiresIn : process.env.REFRESH_TOKEN_EXPIRY})
 }
+
 export const User = mongoose.model("User", userSchema);
