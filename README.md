@@ -23,3 +23,5 @@ npm i -D nodemon  // dev dependencies
 ## mongodb connection
 ## router
 ## postman
+
+Model link  : [link]https://app.eraser.io/workspace/YtPqZ1VogxGy1jzIDkzj
