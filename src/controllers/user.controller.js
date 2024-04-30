@@ -6,6 +6,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
+
 // Generating access and refresh tokens
 
 const generateAccessAndRefreshToken = async(userId)=>{
@@ -108,7 +109,7 @@ const loginUser = asyncHandler(async(req,res)=>{
    if(!email && !username){      //for or (!(email || password))
     throw new ApiError(400, "username or password is required")
    }
-
+   
    const findUser = await User.findOne({
       $or : [{email} || {username}]
    })
