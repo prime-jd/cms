@@ -1,54 +1,47 @@
-import { asyncHandler } from "../utils/asyncHandler";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { Monday } from "../models/mondaySchedule.model.js";
 import { ApiError } from "../utils/apiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { User } from "../models/user.model.js";
 
 const updateTimeTable = asyncHandler(async (req, res) => {
-    try {
+    
         const { day } = req.body;
+        const schedule = await Monday.find({day : 'monday'})
+        console.log(schedule[0].time);  
 
-        if (!day) {
-            throw new ApiError(404, "Day is Required")
-        }
+        if (!schedule) throw new ApiError(404, "schedule not found")
 
-        let Model;
-        switch (day) {
-            case 'Monday':
-                Model = Monday;
-                break;
-            case 'Tuesday':
-                Model = Tuesday;
-                break;
-            // Add more cases for other collections as needed
-            default:
-                return res.status(404).json({ error: "Collection not found" });
-        }
-
-
-        const currentTime = new Date();
-
-
-        const currentDay = currentTime.toLocaleDateString('en-US', { weekday: 'long' });
-        const currentTimeString = currentTime.toLocaleTimeString('en-US', { hour12: false });
-
-        const timetableData = await TimeTable.find({ day: currentDay });
-
-
-        timetableData.forEach(async (timetableItem) => {
-
-            const [start, end] = timetableItem.time.split(' to ');
-
-
-            if (currentTimeString >= start && currentTimeString <= end) {
-
-                await TimeTable.findByIdAndUpdate(timetableItem._id, { status: true });
-            } else {
-
-                await TimeTable.findByIdAndUpdate(timetableItem._id, { status: false });
-            }
-        });
-    } catch (error) {
-        console.error('Error updating status:', error);
+        return res.json(new ApiResponse(201, "schedule found", schedule))
+    
+});
+const onTimeTable  = asyncHandler(async (req, res) => {
+    const {username, mark, status, time} = req.body;
+    const user = await User.findOne({username : username})
+    if(!user) throw new ApiError(404, "user not found")
+    if(mark && status) throw new ApiError(400, "mark is required")
+    let changeStatus = await Monday.find({time : time})
+    if(!mark && !status) {
+        changeStatus[0].status = true;
     }
+    
+    res.json(new ApiResponse(200, "time table status updated successfully", changeStatus))
+});
 
+const getTimeTable = asyncHandler(async (req, res) => {
 
-})
+    const {username, mark, status, time} = req.body;
+    const user = await User.findOne({username : username})
+    if(!user) throw new ApiError(404, "user not found")
+    if(!mark && !status) throw new ApiError(400, "mark is required")
+    const changeStatus = await Monday.find({time : time})
+    if(mark && status) {
+       
+        changeStatus[0].mark = mark
+        
+    }
+    await changeStatus[0].save({validateBeforeSave :false})
+    res.json(new ApiResponse(200, "time table updated successfully",changeStatus))
+});
+
+export { updateTimeTable, onTimeTable, getTimeTable }
