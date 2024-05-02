@@ -37,7 +37,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const {email,username,password,fullname}= req.body
     // console.log(email)
     // console.log(password)
-     console.log(req.body)                // it does not give access to file (only text)
+    // console.log(req.body)                // it does not give access to file (only text)
 
     // check validation 
     if([fullname, email,username,password].some((empty)=>empty?.trim()==="")){
