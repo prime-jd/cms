@@ -16,9 +16,20 @@ const updateTimeTable = asyncHandler(async (req, res) => {
     
 });
 const onTimeTable  = asyncHandler(async (req, res) => {
-    const {username, mark, status, time} = req.body;
-    const user = await User.findOne({username : username})
-    if(!user) throw new ApiError(404, "user not found")
+    // const {username, mark, status, time} = req.body;
+
+    // const user = await User.findOne({username : username})
+    // if(!user) throw new ApiError(404, "user not found")
+
+    if(username === req.user.username){
+       //  console.log("Authorized User")
+       const user = req.user;
+       res.json(new ApiResponse(202, "Authorized User",user))
+    }
+    else{
+        throw new ApiError(404, "User Not Found")
+    }
+
     if(mark && status) throw new ApiError(400, "mark is required")
     let changeStatus = await Monday.find({time : time})
     if(!mark && !status) {
