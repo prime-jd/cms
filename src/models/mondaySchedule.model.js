@@ -14,9 +14,13 @@ const MondaySchema = new mongoose.Schema({
         required: true,
     },
     
-    time: {
+    startTime: {
         type: String,
         required: true,
+    },
+    endTime:{
+        type : String,
+        required : true
     },
     status: {
         type: Boolean,
