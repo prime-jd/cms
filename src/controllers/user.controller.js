@@ -113,7 +113,7 @@ const loginUser = asyncHandler(async(req,res)=>{
    const findUser = await User.findOne({
       $or : [{email} || {username}]
    })
-//    console.log(findUser)
+   // console.log(findUser)
   
    if(!findUser){
     throw new ApiError(404, "user does not exist")
@@ -133,23 +133,22 @@ const loginUser = asyncHandler(async(req,res)=>{
     httpOnly : true,
     secure : true
    }
-   
+   //console.log(loggedInUser)
    return res.status(200).cookie("accessToken", accessToken, cookieOptions)
-   .cookie("refreshToken", refreshToken, cookieOptions)
+   .cookie("refreshToken", refreshToken, cookieOptions).cookie("userLogged","cred",{secure :true})
    .json(new ApiResponse(200, 
     {
         user :  loggedInUser,
         accessToken,                
         refreshToken
     },
-    "User logged in successfully"));
-
-    
+    "User logged in successfully")); 
 });
 
 //LOGOUT
 
 const logoutUser = asyncHandler(async(req, res)=>{
+    const cred = "new"
   await  User.findByIdAndUpdate(req.user._id, {
       $set :{refreshToken : ""
      }},
@@ -160,7 +159,7 @@ const logoutUser = asyncHandler(async(req, res)=>{
     httpOnly : true,
     secure : true
     }
-    return res.status(200).clearCookie("accessToken").clearCookie("refreshToken").json(new ApiResponse(200, "User logged out successfully"));
+    return res.status(200).clearCookie("accessToken",cookieOptions).clearCookie("refreshToken",cookieOptions).clearCookie("userLogged",{secure :true}).json(new ApiResponse(200, "User logged out successfully"));
  });
 
 // refresh access token 
