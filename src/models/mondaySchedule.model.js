@@ -12,8 +12,7 @@ const MondaySchema = new mongoose.Schema({
     faculty : {
         type: String,
         required: true,
-    },
-    
+    }, 
     startTime: {
         type: String,
         required: true,
@@ -24,11 +23,11 @@ const MondaySchema = new mongoose.Schema({
     },
     status: {
         type: Boolean,
-        default: true,
+        default: false,
     },
     mark : {
         type : Boolean,
-        required : true
+        required : false
     },
     day : {
         type : String,
