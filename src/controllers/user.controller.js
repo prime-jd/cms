@@ -1,17 +1,18 @@
 
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { User} from "../models/user.model.js";
+import {User} from "../models/user.model.js";
 import {ApiError} from "../utils/apiError.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import { Teacher } from "../models/teacher.model.js";
 
 
 // Generating access and refresh tokens
 
 const generateAccessAndRefreshToken = async(userId)=>{
     try {
-           const user = await User.findById(userId)
+           const user = (await User.findById(userId) || await Teacher.findById(userId))
            const accessToken = user.generateAccessToken()
            
            const refreshToken = user.generateRefreshToken()
@@ -29,18 +30,73 @@ const generateAccessAndRefreshToken = async(userId)=>{
 
 //SIGN UP
 
+const registerFaculty = asyncHandler(async(req,res) => {
+      const {email,password,username} = req.body;
+      if([ email,username,password].some((empty)=>empty?.trim()==="")){
+        throw new ApiError(400,"All fields are required") }
+
+        const userExists = (await Teacher.findOne({
+            $or : [{email},{username}]
+        }) || await User.findOne({
+            $or : [{email},{username}]
+        }))
+        if(userExists){
+           
+            throw new ApiError(400, "User Already Exists")
+        }
+    
+        // check for images and avatar 
+        //console.log(req.files)
+        const avatarLocalPath = req.files?.avatar[0]?.path;
+        const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    
+        if(!avatarLocalPath ){
+            throw new ApiError(400, "Please upload images")
+        }
+        
+        // upload images on cloudinary
+        const avatar =await uploadOnCloudinary(avatarLocalPath);
+        const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+    
+        if(!avatar ){
+            throw new ApiError(400, "Error uploading images")
+        }
+    
+        // create user object in db
+        const teacher = await Teacher.create({
+            email,
+            username :"T_"+username.toUpperCase(),
+            password,
+            avatar : avatar.url,
+            coverImage : coverImage.url || "",
+        })
+        //check for user creation
+        //remove pass and refreshToken field from response
+        const createdTeacher = await Teacher.findById(teacher._id).select("-password -refreshToken");
+    
+        if(!createdTeacher){
+            throw new ApiError(400, "Error creating user")
+        }
+    
+        // return res
+        return res.status(201).json(new ApiResponse(200, "User created successfully", createdTeacher));
+
+    });
+ 
+
 const registerUser = asyncHandler(async (req, res) => {
    // res.status(200).json({ message: "Register User" });
     
 
     // get user details from frontend
-    const {email,username,password,fullname}= req.body
+     
+    const {email,username,password,fullname,rollno,classname,course}= req.body
     // console.log(email)
     // console.log(password)
     // console.log(req.body)                // it does not give access to file (only text)
 
     // check validation 
-    if([fullname, email,username,password].some((empty)=>empty?.trim()==="")){
+    if([fullname, email,username,password,rollno,classname,course].some((empty)=>empty?.trim()==="")){
         throw new ApiError(400,"All fields are required")
     }
 
@@ -74,11 +130,14 @@ const registerUser = asyncHandler(async (req, res) => {
     // create user object in db
     const user = await User.create({
         email,
-        username : username.toLowerCase(),
+        username : username.toUpperCase(),
         password,
         fullname,
         avatar : avatar.url,
-        coverImage : coverImage.url || ""
+        coverImage : coverImage.url || "",
+        className : classname,
+        course : course,
+        rollNo : rollno
     })
     //check for user creation
     //remove pass and refreshToken field from response
@@ -106,60 +165,79 @@ const loginUser = asyncHandler(async(req,res)=>{
 //   console.log(req.body)
 //    console.log({email})
    
-   if(!email && !username){      //for or (!(email || password))
+   if(!username && !password){      //for or (!(email || password))
     throw new ApiError(400, "username or password is required")
    }
-   
-   const findUser = await User.findOne({
-      $or : [{email} || {username}]
-   })
-   // console.log(findUser)
+   console.log(username)
+   const findUser =( await User.findOne({
+     username : username
+   }) || await Teacher.findOne({
+    username : username
+  }))
+  //console.log(findUser)
   
    if(!findUser){
     throw new ApiError(404, "user does not exist")
    }
 
-   const isPasswordValid = await findUser.isPasswordCorrect(password)                                    // we do not use "User" because it is a mongoose object so to use methods defined in user model we have to use "findUser" which is a instance taken by User model
+   //console.log(password)
+   
+   const isPasswordValid = await findUser.isPasswordCorrect(password)                                   // we do not use "User" because it is a mongoose object so to use methods defined in user model we have to use "findUser" which is a instance taken by User model
+   
    if(!isPasswordValid){
     throw new ApiError(404, "invalid user credentials")
    }
 
-   const {accessToken, refreshToken}=await generateAccessAndRefreshToken(findUser._id)
+     const {accessToken, refreshToken}=(await generateAccessAndRefreshToken(findUser._id))
   //  console.log(accessToken)
 
-   const loggedInUser = await User.findById(findUser._id).select("-password -refreshToken") 
+   const loggedInUser = (await User.findById(findUser._id).select("-password -refreshToken") || await Teacher.findById(findUser._id).select("-password -refreshToken")) 
 
    const cookieOptions = {
     httpOnly : true,
     secure : true
    }
    //console.log(loggedInUser)
-   return res.status(200).cookie("accessToken", accessToken, cookieOptions)
-   .cookie("refreshToken", refreshToken, cookieOptions).cookie("userLogged","cred",{secure :true})
+   return loggedInUser.username[0]=="a" ? res.status(200).cookie("accessToken", accessToken, cookieOptions)
+   .cookie("refreshToken", refreshToken, cookieOptions).cookie("userLogged","teacher",{secure :true})
    .json(new ApiResponse(200, 
     {
         user :  loggedInUser,
         accessToken,                
         refreshToken
     },
-    "User logged in successfully")); 
+    "User logged in successfully")) : res.status(200).cookie("accessToken", accessToken, cookieOptions)
+    .cookie("refreshToken", refreshToken, cookieOptions).cookie("userLogged","student",{secure :true})
+    .json(new ApiResponse(200, 
+     {
+         user :  loggedInUser,
+         accessToken,                
+         refreshToken
+     },
+     "User logged in successfully"))
 });
 
 //LOGOUT
 
 const logoutUser = asyncHandler(async(req, res)=>{
     const cred = "new"
-  await  User.findByIdAndUpdate(req.user._id, {
+  await  User.findByIdAndUpdate(req.user?._id, {
       $set :{refreshToken : ""
      }},
     {
     new : true
     }) 
+    await  Teacher.findByIdAndUpdate(req.user?._id, {
+        $set :{refreshToken : ""
+       }},
+      {
+      new : true
+      }) 
     const cookieOptions = {
     httpOnly : true,
     secure : true
     }
-    return res.status(200).clearCookie("accessToken",cookieOptions).clearCookie("refreshToken",cookieOptions).clearCookie("userLogged",{secure :true}).json(new ApiResponse(200, "User logged out successfully"));
+    return res.status(200).clearCookie("accessToken",cookieOptions).clearCookie("refreshToken",cookieOptions).clearCookie("userLogged",{secure :true}).clearCookie("teacherLogged",{secure :true}).json(new ApiResponse(200, "User logged out successfully"));
  });
 
 // refresh access token 
@@ -276,7 +354,9 @@ const updateUserCoverImage = asyncHandler(async (req, res) =>{
 
 })
 
-export { registerUser, 
+export { 
+       registerFaculty,
+       registerUser, 
        loginUser ,
        logoutUser, 
        refreshAccessToken,
