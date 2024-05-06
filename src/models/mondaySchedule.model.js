@@ -21,15 +21,11 @@ const MondaySchema = new mongoose.Schema({
         type : String,
         required : true
     },
-    status: {
-        type: Boolean,
-        default: false,
-    },
-    mark : {
-        type : Boolean,
-        required : false
-    },
     day : {
+        type : String,
+        required : true
+    },
+    facultyId :{
         type : String,
         required : true
     }
