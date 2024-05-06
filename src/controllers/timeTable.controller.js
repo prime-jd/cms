@@ -2,9 +2,19 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { Monday } from "../models/mondaySchedule.model.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { User } from "../models/user.model.js";
+import { Record } from "../models/subjectAttendance.model.js";
+import { Teacher } from "../models/teacher.model.js";
 
-const updateTimeTable = asyncHandler(async (req, res) => {
+const getFullTable = asyncHandler(async (req,res)=>{
+    const table = await Monday.find()
+    //console.log(table)
+    if(!table){
+        throw new ApiError(400, "table not found")
+    }
+    return res.json(new ApiResponse(200 ,"Table sent Successfully",table))
+})
+
+const getCurrentSchedule = asyncHandler(async (req, res) => {
     
         const { username, day } = req.body;
         if(username === req.user.username){
@@ -15,14 +25,14 @@ const updateTimeTable = asyncHandler(async (req, res) => {
              throw new ApiError(404, "User Not Found")
          }
          const schedule = await Monday.find({day : day.toLowerCase()})
-        console.log(schedule[0].startTime);  
+       // console.log(schedule[0].startTime);  
 
         if (!schedule) throw new ApiError(404, "schedule not found")
 
         return res.json(new ApiResponse(201, "schedule found", schedule))
     
 });
-const onTimeTable  = asyncHandler(async (req, res) => {
+const generateOTP  = asyncHandler(async (req, res) => {
     // const {username, mark, status, time} = req.body;
 
     // const user = await User.findOne({username : username})
@@ -36,32 +46,49 @@ const onTimeTable  = asyncHandler(async (req, res) => {
     // else{
     //     throw new ApiError(404, "User Not Found")
     // }
-    const {mark,status,startTime,endTime} = req.body;
+    const {date,subjectcode,subject,faculty,facultyid,startTime} = req.body;
 
-    if(mark && status) throw new ApiError(400, "mark is required")
-    let changeStatus = await Monday.find({time : time})
-    
-    if(!mark && status) {
-        changeStatus[0].status = status;
+    if(!subjectcode && !faculty){
+        throw new ApiError(400, "subject not found")
     }
-    console.log(changeStatus[0])
-    await changeStatus[0].save({validateBeforeSave :false})
-    return res.json(new ApiResponse(200, "time table status updated successfully", changeStatus))
+    const sub = await Monday.findOne({subject : subject})
+    if(!sub){
+        throw new ApiError(400,"no record of subject")
+    }
+    const teacher = await Teacher.find({username : facultyid})
+    if(!teacher){
+        throw new ApiError(400,"no record of faculty")
+    }
+    const proxy = (teacher.fullName === faculty)
+    const record = await Record.create({
+        date : date,
+        faculty : faculty,
+        startTime : startTime,
+        subjectcode : subjectcode,
+        rollNo : "",
+        proxy,
+        time : ""
+    })
+    return res.json(new ApiResponse(200, 'OTP sent successfully', record))
+    
 });
 
-const getTimeTable = asyncHandler(async (req, res) => {
+const submitOTP = asyncHandler(async (req, res) => {
 
-    const { mark, status, startTime, endTime} = req.body;
-    if(!mark && !status) throw new ApiError(400, "status is required to mark")
+    const { rollno,subjectcode, otp,time, classname} = req.body;
+    if(!rollno && !otp) throw new ApiError(400, "both fields are required")
 
-    const changeStatus = await Monday.find({startTime : startTime})
-
-    if(mark && status) {  
-        changeStatus[0].mark = mark    
+    const student = req.user
+    
+    if(student.rollNo !== rollno && student.className !== classname) {  
+        throw new ApiError(400, "Wrong User Submisssion")   
     }
 
-    await changeStatus[0].save({validateBeforeSave :false})
+    const rec = await Record.find({subjectCode : subjectcode})
+    rec.rollNo = rollno;
+    rec.time = time;
+    await rec.save({validateBeforeSave : false})
     return res.json(new ApiResponse(200, "time table updated successfully",changeStatus))
 });
 
-export { updateTimeTable, onTimeTable, getTimeTable }
+export {getCurrentSchedule, generateOTP, submitOTP,getFullTable }
