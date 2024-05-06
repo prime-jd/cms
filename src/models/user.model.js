@@ -3,10 +3,10 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 const userSchema = mongoose.Schema({
-    watchHistory: [ {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "Video"
-    },],
+    // watchHistory: [ {
+    //     type : mongoose.Schema.Types.ObjectId,
+    //     ref : "Video"
+    // },],
     password : {
         type : String,
         required : [true, "password required"]
@@ -46,7 +46,20 @@ const userSchema = mongoose.Schema({
     coverImage : {
         type : String // cloudnery url
         
+    },
+    rollNo :{
+        type :String,
+        required : true
+    },
+    className : {
+        type : String,
+        required : true
+    },
+    course : {
+        type : String,
+        required :true
     }
+
 
 }, {timestamps : true})
 
@@ -57,7 +70,7 @@ userSchema.pre("save", async function(next){
     })
         
 userSchema.methods.isPasswordCorrect = async function(password){
-    return await bcrypt.compare(password, this.password);
+    return await bcrypt.compare(password, this.password)
     
 }
 userSchema.methods.generateAccessToken= function(){
