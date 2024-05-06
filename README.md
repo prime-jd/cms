@@ -6,7 +6,6 @@ Nodemon is a utility tool for Node.js applications that monitors changes in your
 ```
 npm i -D nodemon  // dev dependencies
 ```
-
 ## dotenv
 ## mongoose
 ## prettier
