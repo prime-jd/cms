@@ -28,6 +28,14 @@ const MondaySchema = new mongoose.Schema({
     facultyId :{
         type : String,
         required : true
+    },
+    roomNo :{
+        type: String,
+        required :true
+    },
+    className : {
+        type :String,
+        required : true
     }
     
 });
