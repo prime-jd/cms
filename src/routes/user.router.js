@@ -2,7 +2,7 @@ import { Router } from "express";
 import { registerFaculty,registerUser,loginUser,logoutUser,refreshAccessToken } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
-import { getCurrentSchedule, generateOTP,submitOTP, getFullTable} from "../controllers/timeTable.controller.js";
+import { getCurrentSchedule,submitOTP, getFullTable, generateRec} from "../controllers/timeTable.controller.js";
 
 const router = Router()
 
@@ -28,7 +28,7 @@ router.route("/refresh-token").post(refreshAccessToken)
 router.route("/week-Schedule").get(getFullTable)
 
 router.route("/schedule").post(verifyJwt,getCurrentSchedule)
-router.route("/schedule-in").post(generateOTP)
+router.route("/schedule-in").post(verifyJwt,generateRec)
 router.route("/schedule-out").post(verifyJwt,submitOTP)
 
 export default router;
