@@ -1,4 +1,4 @@
-# MERN FULL STACK
+# MERN 
 
 ## Nodemon
 
