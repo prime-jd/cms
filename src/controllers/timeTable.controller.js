@@ -32,7 +32,7 @@ const getCurrentSchedule = asyncHandler(async (req, res) => {
         return res.json(new ApiResponse(201, "schedule found", schedule))
     
 });
-const generateOTP  = asyncHandler(async (req, res) => {
+const generateRec  = asyncHandler(async (req, res) => {
     // const {username, mark, status, time} = req.body;
 
     // const user = await User.findOne({username : username})
@@ -46,28 +46,34 @@ const generateOTP  = asyncHandler(async (req, res) => {
     // else{
     //     throw new ApiError(404, "User Not Found")
     // }
-    const {date,subjectcode,subject,faculty,facultyid,starttime} = req.body;
-
-    if(!subjectcode && !faculty){
+    const {date,subject,faculty,facultyId,startTime,className,roomNo} = req.body;
+    console.log(req.body)
+    if(!subject && !faculty){
         throw new ApiError(400, "subject not found")
     }
-    const sub = await Monday.findOne({subject : subject})
+    const sub = await Monday.find(
+        {subject: subject})
+    
     if(!sub){
         throw new ApiError(400,"no record of subject")
     }
-    const teacher = await Teacher.find({username : facultyid})
+    const teacher = await Teacher.find({username : facultyId})
     if(!teacher){
         throw new ApiError(400,"no record of faculty")
     }
-    const proxy = (teacher.fullName === faculty)
+    
+    const prox = (sub[0].faculty === faculty)
     const record = await Record.create({
         date : date,
         faculty : faculty,
-        startTime : starttime,
-        subjectcode : subjectcode,
-        rollNo : "",
-        proxy,
-        time : ""
+        startTime : startTime,
+        subject : subject,
+        rollNo : req.user.rollNo,
+        proxy : !prox,
+        time : "",
+        className,
+        roomNo,
+        otp : ""
     })
     return res.json(new ApiResponse(200, 'OTP sent successfully', record))
     
@@ -75,21 +81,22 @@ const generateOTP  = asyncHandler(async (req, res) => {
 
 const submitOTP = asyncHandler(async (req, res) => {
 
-    const { rollno,subjectcode, otp,time, classname} = req.body;
-    if(!rollno && !otp) throw new ApiError(400, "both fields are required")
+    const {otp,time} = req.body;
+    if(!time && !otp) throw new ApiError(400, "both fields are required")
 
-    const student = req.user
+    const authOTP = await Record.find({className : req.user.className})
     
-    if(student.rollNo !== rollno && student.className !== classname) {  
-        throw new ApiError(400, "Wrong User Submisssion")   
+    if(!authOTP) {  
+        throw new ApiError(400, "Schedule not recorded")   
     }
 
-    const rec = await Record.find({subjectCode : subjectcode})
-    rec.rollNo = rollno;
-    rec.time = time;
-    rec.className=classname;
-    await rec.save({validateBeforeSave : false})
-    return res.json(new ApiResponse(200, "time table updated successfully",changeStatus))
+    if(authOTP.otp !== otp){
+        throw new ApiError(400, "otp not matched")
+    }
+    authOTP.time = time 
+
+    await authOTP.save({validateBeforeSave : false})
+    return res.json(new ApiResponse(200, "Record updated successfully",authOTP))
 });
 
-export {getCurrentSchedule, generateOTP, submitOTP,getFullTable }
+export {getCurrentSchedule, generateRec, submitOTP,getFullTable }
