@@ -8,31 +8,36 @@ const recordSchema= new mongoose.Schema({
     },
     time : {
         type : String,
-        
+            
     },
-    subjectCode : {
+    subject : {
         type : String,
-        required :true
+       
     },
     faculty : {
         type : String,
-        required :true
+       
     },
-    rollno : {
-        type : String,  
+    rollNo : {
+        type : String, 
+        
     },
     startTime : {
         type: String,
-        required : true
+       
     },
     proxy : {
         type : Boolean,
 
     },
     className : {
-        type : String
-        }
+        type : String,
+        required : true
+    },
+    otp :{
+        type :Number
+    }
 
-},{timestamps : true})
+})
 
 export const Record = mongoose.model("Record",recordSchema);
