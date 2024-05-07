@@ -46,7 +46,7 @@ const generateOTP  = asyncHandler(async (req, res) => {
     // else{
     //     throw new ApiError(404, "User Not Found")
     // }
-    const {date,subjectcode,subject,faculty,facultyid,startTime} = req.body;
+    const {date,subjectcode,subject,faculty,facultyid,starttime} = req.body;
 
     if(!subjectcode && !faculty){
         throw new ApiError(400, "subject not found")
@@ -63,7 +63,7 @@ const generateOTP  = asyncHandler(async (req, res) => {
     const record = await Record.create({
         date : date,
         faculty : faculty,
-        startTime : startTime,
+        startTime : starttime,
         subjectcode : subjectcode,
         rollNo : "",
         proxy,
@@ -87,6 +87,7 @@ const submitOTP = asyncHandler(async (req, res) => {
     const rec = await Record.find({subjectCode : subjectcode})
     rec.rollNo = rollno;
     rec.time = time;
+    rec.className=classname;
     await rec.save({validateBeforeSave : false})
     return res.json(new ApiResponse(200, "time table updated successfully",changeStatus))
 });

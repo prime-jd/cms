@@ -8,7 +8,7 @@ const recordSchema= new mongoose.Schema({
     },
     time : {
         type : String,
-        required :true
+        
     },
     subjectCode : {
         type : String,
@@ -19,8 +19,7 @@ const recordSchema= new mongoose.Schema({
         required :true
     },
     rollno : {
-        type : String,
-        required :true   
+        type : String,  
     },
     startTime : {
         type: String,
@@ -28,8 +27,11 @@ const recordSchema= new mongoose.Schema({
     },
     proxy : {
         type : Boolean,
-        required : true
-    }
+
+    },
+    className : {
+        type : String
+        }
 
 },{timestamps : true})
 
