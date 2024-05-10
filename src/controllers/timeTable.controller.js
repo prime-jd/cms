@@ -16,7 +16,7 @@ const getFullTable = asyncHandler(async (req,res)=>{
 
 const getCurrentSchedule = asyncHandler(async (req, res) => {
     
-        const { username, day } = req.body;
+        const { username, day } = req.body;    // is it to be get
         if(username === req.user.username){
             console.log("Authorized User")
             
@@ -73,7 +73,7 @@ const generateRec  = asyncHandler(async (req, res) => {
         time : "",
         className,
         roomNo,
-        otp : ""
+        otp : 0
     })
     return res.json(new ApiResponse(200, 'OTP sent successfully', record))
     
@@ -99,4 +99,14 @@ const submitOTP = asyncHandler(async (req, res) => {
     return res.json(new ApiResponse(200, "Record updated successfully",authOTP))
 });
 
-export {getCurrentSchedule, generateRec, submitOTP,getFullTable }
+const teacherTT = asyncHandler(async (req,res)=>{
+    const user = req.user
+    if(user.username[0] !== "T"){
+        throw new ApiError(400, "only faculty allowed")
+    }
+    const teacher = await Monday.find({facultyId : user.username})
+    console.log(teacher);
+    return res.json(new ApiResponse(200, "Data sent Successfully",teacher))
+})
+
+export {getCurrentSchedule, generateRec, submitOTP,getFullTable,teacherTT }
