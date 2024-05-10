@@ -8,6 +8,10 @@ const teacherSchema =new mongoose.Schema({
         type :String,
         required : true
     },
+    fullName : {
+        type : String,
+        required : true
+    },
     password : {
         type :String,
         required :true
@@ -23,10 +27,7 @@ const teacherSchema =new mongoose.Schema({
         type :String,
         required : true
     },
-    teacherSchedule :[{
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'Monday'
-    }]
+    
 
 },{timestamps : true})
 
