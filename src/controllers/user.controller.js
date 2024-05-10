@@ -130,7 +130,7 @@ const registerUser = asyncHandler(async (req, res) => {
     // create user object in db
     const user = await User.create({
         email,
-        username : username.toUpperCase(),
+        username : username.toLowerCase(),
         password,
         fullname,
         avatar : avatar.url,
@@ -198,7 +198,7 @@ const loginUser = asyncHandler(async(req,res)=>{
     secure : true
    }
    //console.log(loggedInUser)
-   return loggedInUser.username[0]=="a" ? res.status(200).cookie("accessToken", accessToken, cookieOptions)
+   return loggedInUser.username[0]=="T" ? res.status(200).cookie("accessToken", accessToken, cookieOptions)
    .cookie("refreshToken", refreshToken, cookieOptions).cookie("userLogged","teacher",{secure :true})
    .json(new ApiResponse(200, 
     {
