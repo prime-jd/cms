@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const recordSchema= new mongoose.Schema({
+const permRecordSchema= new mongoose.Schema({
 
     date : {
         type : Date,
@@ -40,4 +40,4 @@ const recordSchema= new mongoose.Schema({
 
 })
 
-export const Record = mongoose.model("Record",recordSchema);
+export const PermRecord = mongoose.model("PermRecord",permRecordSchema);
