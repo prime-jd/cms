@@ -2,8 +2,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { Monday } from "../models/mondaySchedule.model.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { Record } from "../models/subjectAttendance.model.js";
+
 import { Teacher } from "../models/teacher.model.js";
+import { Record } from "../models/tempRecord.model.js";
+import { PermRecord } from "../models/permRecord.model.js";
 
 const getFullTable = asyncHandler(async (req,res)=>{
     const table = await Monday.find()
@@ -96,8 +98,11 @@ const submitOTP = asyncHandler(async (req, res) => {
     authOTP.time = time 
 
     await authOTP.save({validateBeforeSave : false})
+    await PermRecord.insertOne({className : req.user.className})
+    await Record.deleteOne({authOTP : otp})
     return res.json(new ApiResponse(200, "Record updated successfully",authOTP))
 });
+
 
 const teacherTT = asyncHandler(async (req,res)=>{
     const user = req.user
@@ -107,6 +112,13 @@ const teacherTT = asyncHandler(async (req,res)=>{
     const teacher = await Monday.find({facultyId : user.username})
     console.log(teacher);
     return res.json(new ApiResponse(200, "Data sent Successfully",teacher))
+});
+
+
+const isSubjectChecked= asyncHandler(async (req,res)=>{
+    const data = await Record.find()                                       // change record to permrecord
+    return res.json(new ApiResponse(200, "Data sent Successfully", data))
 })
 
-export {getCurrentSchedule, generateRec, submitOTP,getFullTable,teacherTT }
+export {getCurrentSchedule, generateRec, submitOTP,getFullTable,teacherTT ,isSubjectChecked}
+
