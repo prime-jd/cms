@@ -59,10 +59,14 @@ const generateRec  = asyncHandler(async (req, res) => {
     if(!sub){
         throw new ApiError(400,"no record of subject")
     }
-    const teacher = await Teacher.find({username : facultyId})
+    const teacher = await Teacher.findOne({username : facultyId})
     if(!teacher){
         throw new ApiError(400,"no record of faculty")
     }
+    // const rec = await Record.findOne({rollNo : req.user.rollNo});
+    // if(rec){
+    //     throw new ApiError(400, "record already exists")
+    // }
     
     const prox = (sub[0].faculty === faculty)
     const record = await Record.create({
@@ -83,23 +87,23 @@ const generateRec  = asyncHandler(async (req, res) => {
 
 const submitOTP = asyncHandler(async (req, res) => {
 
-    const {otp,time} = req.body;
-    if(!time && !otp) throw new ApiError(400, "both fields are required")
+    const {otp,className, time} = req.body;
+    if(!className && !otp) throw new ApiError(400, "both fields are required")
 
-    const authOTP = await Record.find({className : req.user.className})
-    
-    if(!authOTP) {  
+    const authOTP = await Record.find({className : className})
+    console.log(authOTP);
+    if(authOTP.length==0) {  
         throw new ApiError(400, "Schedule not recorded")   
     }
 
-    if(authOTP.otp !== otp){
-        throw new ApiError(400, "otp not matched")
-    }
-    authOTP.time = time 
+    authOTP.map(async x =>{ 
+        if(x.otp==0)
+        x.time = time
+        x.otp = otp
+        await x.save({validateBeforeSave : false})
+    })
 
-    await authOTP.save({validateBeforeSave : false})
-    await PermRecord.insertOne({className : req.user.className})
-    await Record.deleteOne({authOTP : otp})
+    
     return res.json(new ApiResponse(200, "Record updated successfully",authOTP))
 });
 
@@ -115,10 +119,32 @@ const teacherTT = asyncHandler(async (req,res)=>{
 });
 
 
+const authenticateOTP = asyncHandler(async (req, res)=>{
+    const {otp, rollNo} = req.body;
+    const authOTP = await Record.findOne({rollNo : rollNo})
+    if(!authOTP) {
+        throw new ApiError(400, "Schedule not recorded")
+    }
+    if(authOTP.otp == 0){
+        throw new ApiError(400, "Otp not set")
+    }
+    if(authOTP.otp===otp){
+        await PermRecord.insertOne(authOTP);
+        await Record.deleteOne(authOTP);
+    }
+
+    if(authOTP.otp !== otp){
+        throw new ApiError(400, "otp not matched")
+    }
+
+    return res.json(new ApiResponse(200, "Record updated successfully", authOTP))
+});
+
+
 const isSubjectChecked= asyncHandler(async (req,res)=>{
     const data = await Record.find()                                       // change record to permrecord
     return res.json(new ApiResponse(200, "Data sent Successfully", data))
 })
 
-export {getCurrentSchedule, generateRec, submitOTP,getFullTable,teacherTT ,isSubjectChecked}
+export {getCurrentSchedule, generateRec, submitOTP,getFullTable,teacherTT ,isSubjectChecked,authenticateOTP}
 
