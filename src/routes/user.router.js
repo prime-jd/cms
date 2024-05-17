@@ -32,6 +32,6 @@ router.route("/schedule-in").post(verifyJwt,generateRec)
 router.route("/schedule-out").post(verifyJwt,submitOTP)
 router.route("/teacher-tt").get(verifyJwt, teacherTT)
 router.route("/record").get(verifyJwt, isSubjectChecked)
-router.route("/authotp").get(verifyJwt, authenticateOTP)
+router.route("/authotp").post(authenticateOTP)
 
 export default router;
