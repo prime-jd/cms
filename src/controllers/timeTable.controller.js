@@ -63,10 +63,8 @@ const generateRec  = asyncHandler(async (req, res) => {
     if(!teacher){
         throw new ApiError(400,"no record of faculty")
     }
-    // const rec = await Record.findOne({rollNo : req.user.rollNo});
-    // if(rec){
-    //     throw new ApiError(400, "record already exists")
-    // }
+    const rec = await Record.findOne({rollNo : req.user.rollNo});
+    if(rec){await Record.deleteOne(rec);}
     
     const prox = (sub[0].faculty === faculty)
     const record = await Record.create({
@@ -119,25 +117,42 @@ const teacherTT = asyncHandler(async (req,res)=>{
 });
 
 
-const authenticateOTP = asyncHandler(async (req, res)=>{
-    const {otp, rollNo} = req.body;
-    const authOTP = await Record.findOne({rollNo : rollNo})
-    if(!authOTP) {
-        throw new ApiError(400, "Schedule not recorded")
+const authenticateOTP = asyncHandler(async (req, res) => {
+    const { otp, rollNo } = req.body;
+    console.log(rollNo)
+    console.log(otp)
+    // Convert otp from request body to a number
+    const otpNumber = Number(otp);
+    const auth = await Record.find({});
+    console.log(auth)
+    // Fetch the record based on rollNo
+    const record = await Record.findOne({rollNo});
+    console.log(record);
+
+    if (!record) {
+        throw new ApiError(400, "Schedule not recorded");
     }
-    if(authOTP.otp == 0){
-        throw new ApiError(400, "Otp not set")
+    if (record.otp === 0) {
+        throw new ApiError(400, "OTP not set");
     }
-    if(authOTP.otp===otp){
-        await PermRecord.insertOne(authOTP);
-        await Record.deleteOne(authOTP);
+    if (record.otp === otpNumber) {
+        await PermRecord.create({
+            date : record.date,
+            faculty : record.faculty,
+            startTime : record.startTime,
+            subject : record.subject,
+            rollNo : record.rollNo,
+            proxy : record.proxy,
+            time : record.time,
+            className : record.className,
+            roomNo : record.roomNo
+        });
+        await Record.deleteOne({ _id: record._id });
+    } else {
+        throw new ApiError(400, "OTP not matched");
     }
 
-    if(authOTP.otp !== otp){
-        throw new ApiError(400, "otp not matched")
-    }
-
-    return res.json(new ApiResponse(200, "Record updated successfully", authOTP))
+    return res.json(new ApiResponse(200, "Record updated successfully", record));
 });
 
 
