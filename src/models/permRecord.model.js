@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const permRecordSchema= new mongoose.Schema({
 
     date : {
-        type : Date,
+        type : String,
         required : true
     },
     time : {
