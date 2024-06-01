@@ -1,4 +1,4 @@
-# MERN 
+# MERN (Class Monitoring System) 
 [frontend CMS]https://github.com/prime-jd/frontend
 ## Nodemon
 ```
