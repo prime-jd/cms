@@ -118,9 +118,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-<<<<<<< HEAD
-# End of https://mrkandreev.name/snippets/gitignore-generator/#Node
-=======
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Node
 .vercel
->>>>>>> e307cace46401f401176283e89273fc564b8a516
