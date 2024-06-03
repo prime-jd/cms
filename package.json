@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.js",
   "engines" :{
-    "node": "14.x"
+    "node": "20.x"
   },
   "scripts": {
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
