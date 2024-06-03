@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
-    "node" : "node --experimental-json-modules src/index.js"
+    "start" : "node --experimental-json-modules src/index.js"
   },
   "keywords": [
     "javascript",
