@@ -22,7 +22,7 @@ connectDB()
 
 // connect env file as soon as possible
 dotenv.config({
-    path: "./env",
+    path: "./.env",
 });
 
 
