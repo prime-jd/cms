@@ -1,6 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Monday } from "../models/mondaySchedule.model.js";
-import { ApiError } from "../utils/apiError.js";
+import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 import { Teacher } from "../models/teacher.model.js";
