@@ -34,7 +34,7 @@ dotenv.config();
 const app = express();
 
 const corsOptions = {
-  origin: "http://localhost:5173/api/v1/user", // Set the origin to the Netlify site
+  origin: "http://localhost:5173", // Set the origin to the Netlify site
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true
 };
