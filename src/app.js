@@ -39,7 +39,6 @@ const corsOptions = {
   credentials: true
 };
 
-app.use(cors(corsOptions));
 
 app.use(express.json({ limit: "16kb" })); // if data received from JSON
 app.use(express.urlencoded({ extended: true, limit: "16kb" })); // if data received from URL
@@ -49,6 +48,6 @@ app.use(cookieParser());
 // Import router
 import useRouter from './routes/user.router.js';
 
-app.use("/api/v1/user", useRouter);
+app.use("/api/v1/user",cors(corsOptions), useRouter);
 
 export { app };
