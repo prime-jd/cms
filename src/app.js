@@ -40,10 +40,10 @@ const corsOptions = {
 };
 
 
-// app.use(express.json({ limit: "16kb" })); // if data received from JSON
-// app.use(express.urlencoded({ extended: true, limit: "16kb" })); // if data received from URL
-// app.use(express.static("public")); // if I want to save any file, folder, or image in the public folder  
-// app.use(cookieParser());
+app.use(express.json({ limit: "16kb" })); // if data received from JSON
+app.use(express.urlencoded({ extended: true, limit: "16kb" })); // if data received from URL
+app.use(express.static("public")); // if I want to save any file, folder, or image in the public folder  
+app.use(cookieParser());
 
 // Import router
 import useRouter from './routes/user.router.js';
