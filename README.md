@@ -19,7 +19,6 @@ Class Monitoring System monitors the student attendance and classroom activities
  mongoose-aggregate-paginate-v2,
  multer,
  cloudinary,
- http headers,http methods,http status code,
  mongodb connection,
  router(safe router),
  postman,
