@@ -3,7 +3,7 @@ import { registerFaculty,registerUser,loginUser,logoutUser,refreshAccessToken } 
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 import cors from "cors";
-import { getCurrentSchedule,submitOTP, getFullTable, generateRec, teacherTT, isSubjectChecked, authenticateOTP} from "../controllers/timeTable.controller.js";
+import { getCurrentSchedule,submitOTP, getFullTable, generateRec, teacherTT, isSubjectChecked, authenticateOTP, displayRecord} from "../controllers/timeTable.controller.js";
 
 const router = Router()
 
@@ -38,6 +38,7 @@ router.route("/schedule-in").post(verifyJwt,generateRec)
 router.route("/schedule-out").post(verifyJwt,submitOTP)
 router.route("/teacher-tt").get(verifyJwt, teacherTT)
 router.route("/record").get(verifyJwt, isSubjectChecked)
+router.route("/recorddisplay").post( displayRecord)
 router.route("/authotp").post(authenticateOTP)
 
 export default router;
