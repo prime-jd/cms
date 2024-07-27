@@ -96,8 +96,8 @@ const submitOTP = asyncHandler(async (req, res) => {
 
     authOTP.map(async x =>{ 
         if(x.otp==0)
-        x.time = time
         x.otp = otp
+        x.time = time
         await x.save({validateBeforeSave : false})
     })
 
@@ -161,5 +161,14 @@ const isSubjectChecked= asyncHandler(async (req,res)=>{
     return res.json(new ApiResponse(200, "Data sent Successfully", data))
 })
 
-export {getCurrentSchedule, generateRec, submitOTP,getFullTable,teacherTT ,isSubjectChecked,authenticateOTP}
+const displayRecord = asyncHandler(async (req,res)=>{
+    const {date} = req.body;
+    const findRecord = await PermRecord({date});
+    if(!findRecord){
+        throw new ApiError(400, "Record not found");
+    }
+    return res.json(new ApiResponse(200, "Record found", findRecord));
+})
+
+export {getCurrentSchedule, generateRec, submitOTP,getFullTable,teacherTT ,isSubjectChecked,authenticateOTP, displayRecord}
 
