@@ -163,7 +163,7 @@ const isSubjectChecked= asyncHandler(async (req,res)=>{
 
 const displayRecord = asyncHandler(async (req,res)=>{
     const {date} = req.body;
-    const findRecord = await PermRecord({date});
+    const findRecord = await PermRecord.find({date});
     if(!findRecord){
         throw new ApiError(400, "Record not found");
     }

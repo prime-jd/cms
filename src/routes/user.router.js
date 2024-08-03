@@ -7,10 +7,10 @@ import { getCurrentSchedule,submitOTP, getFullTable, generateRec, teacherTT, isS
 
 const router = Router()
 
-const corsOptions = {
-    origin: 'http://localhost:5173', // Replace with your frontend domain
-  };
-  router.use(cors(corsOptions));
+// const corsOptions = {
+//     origin: 'http://localhost:5173', // Replace with your frontend domain
+//   };
+//   router.use(cors(corsOptions));
 
 router.route("/register").post(
     upload.fields([
