@@ -33,11 +33,13 @@ dotenv.config();
 
 const app = express();
 
-const corsOptions = {
-  origin: "http://localhost:5173", // Set the origin to the Netlify site
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true
-};
+// const corsOptions = {
+//   origin: "http://localhost:5173", // Set the origin to the Netlify site
+//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//   credentials: true
+// };
+
+app.use(cors());
 
 
 app.use(express.json({ limit: "16kb" })); // if data received from JSON
