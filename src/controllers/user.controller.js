@@ -195,7 +195,8 @@ const loginUser = asyncHandler(async(req,res)=>{
 
    const cookieOptions = {
     httpOnly : true,
-    secure : true
+    secure : true,
+    maxAge :  24 * 60 * 60 * 1000,
    }
    //console.log(loggedInUser)
    return loggedInUser.username[0]=="T" ? res.status(200).cookie("accessToken", accessToken, cookieOptions)
